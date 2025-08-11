@@ -1,0 +1,33 @@
+{
+  "name": "poke-daycare",
+  "version": "0.0.1",
+  "description": "A Node API to support a Pokemon Daycare app.",
+  "type": "commonjs",
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^22.13.10",
+    "eslint": "^9.33.0",
+    "husky": "^9.1.7",
+    "jest": "^30.0.5",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.39.1"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "inversify": "^7.7.1",
+    "reflect-metadata": "^0.2.2",
+    "sqlite3": "^5.1.7",
+    "typeorm": "0.3.25"
+  },
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "prepare": "husky",
+    "test": "ts-jest"
+  }
+}
