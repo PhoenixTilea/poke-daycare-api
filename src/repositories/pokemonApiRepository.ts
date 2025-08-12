@@ -1,35 +1,35 @@
-import Axios, {AxiosInstance} from "axios";
-import {injectable} from "inversify";
+import type {AxiosInstance} from "axios";
+import {inject, injectable, ServiceIdentifier} from "inversify";
 import {IPokemonApiRepository} from "../contracts/iPokemonApiRepository";
 import PokemonNotFoundError from "../errors/pokemonNotFoundError";
 import PokemonOutOfRangeError from "../errors/pokemonOutOfRangeError";
 import Pokemon from "../models/pokemon";
 import PokemonMove from "../models/pokemonMove";
-import type {GrowthRate, PokemonMove as ApiPokemonMove, PokemonSpecies, PokemonVariety} from "./pokemonApi";
+import type {PokemonMove as ApiPokemonMove, GrowthRate, PokemonSpecies, PokemonVariety} from "./pokemonApi";
+
+export const axiosClientId: ServiceIdentifier<AxiosInstance> = Symbol.for("AxiosClientId");
 
 @injectable()
 export default class PokemonApiRepository implements IPokemonApiRepository {
-  private _client: AxiosInstance;
+  constructor(
+    @inject(axiosClientId)
+    private readonly _client: AxiosInstance
 
-  constructor() {
-    this._client = Axios.create({
-      baseURL: "https://pokeapi.co/api/v2"
-    });
-  }
+  ) {}
 
   public getPokemon = async (resId: string | number): Promise<Pokemon> => {
     let species: PokemonSpecies;
 
     try {
       species = await this.getPokemonSpecies(resId);
-
-      // Accounts for a name being passed in, since we don't know its number until we fetch it.
-      if (species.id > 251) {
-        throw new PokemonOutOfRangeError(species.id);
-      }
     } catch (err) {
       console.error(err);
       throw new PokemonNotFoundError(resId);
+    }
+
+    // Accounts for a name being passed in, since we don't know its number until we fetch it.
+    if (species.id > 251) {
+      throw new PokemonOutOfRangeError(species.id);
     }
 
     // For simplicity's sake, we're sticking with a "default" variety

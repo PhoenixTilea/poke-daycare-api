@@ -1,11 +1,13 @@
 {
    "compilerOptions": {
       "lib": [
-         "es2021"
+         "esnext"
       ],
-      "target": "es2021",
-      "module": "commonjs",
+      "target": "esnext",
+      "module": "esnext",
       "moduleResolution": "node",
+      "esModuleInterop": true,
+      "isolatedModules": true,
       "outDir": "./build",
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
@@ -14,6 +16,7 @@
       "skipLibCheck": false
    },
    "include": [
-      "./src"
+      "./src",
+      "./tests"
    ]
 }
