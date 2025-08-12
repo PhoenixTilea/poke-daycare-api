@@ -10,6 +10,7 @@ export default class Pokemon {
     public readonly canBeMale: boolean,
     public readonly canBreed: boolean,
     public readonly eggGroups: string[],
+    public readonly growthRate: string,
     public readonly possibleMoves: PokemonMove[]
   ) {}
 

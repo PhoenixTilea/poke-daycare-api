@@ -7,6 +7,7 @@ export type PokemonSpecies = {
   egg_groups: NamedApiResource[];
   evolves_from_species: NamedApiResource | null;
   gender_rate: number;
+  growth_rate: NamedApiResource;
   id: number;
   is_baby: boolean;
   is_legendary: boolean;
@@ -27,6 +28,12 @@ export type PokemonVariety = {
 export type PokemonMove = {
   move: NamedApiResource;
   version_group_details: PokemonMoveVersion[];
+}
+
+export type GrowthRate = {
+  levels: {
+    experience: number;
+  }[];
 }
 
 type PokemonMoveVersion = {

@@ -1,9 +1,9 @@
-import * as express from "express";
 import * as bodyParser from "body-parser";
+import * as express from "express";
 // import {AppDataSource} from "./data/data-source";
+import container from "./container";
 import errorMiddleware from "./middleware/errorMiddleware";
 import pokemonRouter from "./routers/pokemonRouter";
-import container from "./container";
 
 // AppDataSource.initialize().then(async () => {
 
@@ -18,5 +18,6 @@ app.use("/api/pokemon", pokemonRouter(container));
 app.use(errorMiddleware);
 
 // start express server
-app.listen(3000, () => "Now listening on port 3000");
+const port = process.env.PORT ?? 3000;
+app.listen(port, () => console.log("Now listening on port 3000"));
 // }).catch(console.error)

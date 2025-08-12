@@ -5,7 +5,7 @@ import PokemonNotFoundError from "../errors/pokemonNotFoundError";
 import PokemonOutOfRangeError from "../errors/pokemonOutOfRangeError";
 import Pokemon from "../models/pokemon";
 import PokemonMove from "../models/pokemonMove";
-import {PokemonMove as ApiPokemonMove, PokemonSpecies, PokemonVariety} from "./pokemonApi";
+import type {GrowthRate, PokemonMove as ApiPokemonMove, PokemonSpecies, PokemonVariety} from "./pokemonApi";
 
 @injectable()
 export default class PokemonApiRepository implements IPokemonApiRepository {
@@ -50,11 +50,24 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
       species.gender_rate > -1 && species.gender_rate < 8,
       canBreed,
       eggGroups,
+      species.growth_rate.name,
       moves
     );
   }
 
+  public getExperiencePerLevel = async (rate: string): Promise<number[]> => {
+    const growthRate = await this.getGrowthRate(rate);
+    const exp = growthRate.levels.map(l => l.experience);
+    exp.sort();
+    return exp;
+  }
+
   // Raw Resource Getters
+  private getGrowthRate = async (rate: string): Promise<GrowthRate> => {
+    const res = await this._client.get(`/growth-rate/${rate}`);
+    return res.data;
+  }
+
   private getPokemonSpecies = async (resId: string | number): Promise<PokemonSpecies> => {
     const res = await this._client.get<PokemonSpecies>(`pokemon-species/${resId}`);
     return res.data;
