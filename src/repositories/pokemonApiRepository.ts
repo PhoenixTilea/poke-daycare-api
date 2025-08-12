@@ -1,11 +1,12 @@
-import {injectable} from "inversify";
 import Axios, {AxiosInstance} from "axios";
-import {PokemonSpecies, PokemonVariety, PokemonMove as ApiPokemonMove} from "./pokemonApi";
+import {injectable} from "inversify";
+import {IPokemonApiRepository} from "../contracts/iPokemonApiRepository";
 import Pokemon from "../models/pokemon";
 import PokemonMove from "../models/pokemonMove";
+import {PokemonMove as ApiPokemonMove, PokemonSpecies, PokemonVariety} from "./pokemonApi";
 
 @injectable()
-export default class PokemonApiRepository {
+export default class PokemonApiRepository implements IPokemonApiRepository {
   private _client: AxiosInstance;
 
   constructor() {
