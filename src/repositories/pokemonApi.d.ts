@@ -1,11 +1,11 @@
-type NamedResourcePointer = {
+type NamedApiResource = {
   name: string;
   url: string;
 }
 
 export type PokemonSpecies = {
-  egg_groups: NamedResourcePointer[];
-  evolves_from_species: NamedResourcePointer | null;
+  egg_groups: NamedApiResource[];
+  evolves_from_species: NamedApiResource | null;
   gender_rate: number;
   id: number;
   is_baby: boolean;
@@ -14,7 +14,7 @@ export type PokemonSpecies = {
   name: string;
   varieties: {
     is_default: boolean;
-    pokemon: NamedResourcePointer;
+    pokemon: NamedApiResource;
   }[];
 }
 
@@ -24,13 +24,13 @@ export type PokemonVariety = {
   moves: PokemonMove[];
 };
 
-type PokemonMove = {
-  move: NamedResourcePointer;
+export type PokemonMove = {
+  move: NamedApiResource;
   version_group_details: PokemonMoveVersion[];
 }
 
 type PokemonMoveVersion = {
   level_learned_at: number;
-  move_learn_method: NamedResourcePointer;
   order: number | null;
+  version_group: NamedApiResource;
 }
