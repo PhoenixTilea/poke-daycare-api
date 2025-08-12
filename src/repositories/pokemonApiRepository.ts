@@ -1,6 +1,8 @@
 import Axios, {AxiosInstance} from "axios";
 import {injectable} from "inversify";
 import {IPokemonApiRepository} from "../contracts/iPokemonApiRepository";
+import PokemonNotFoundError from "../errors/pokemonNotFoundError";
+import PokemonOutOfRangeError from "../errors/pokemonOutOfRangeError";
 import Pokemon from "../models/pokemon";
 import PokemonMove from "../models/pokemonMove";
 import {PokemonMove as ApiPokemonMove, PokemonSpecies, PokemonVariety} from "./pokemonApi";
@@ -16,16 +18,24 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
   }
 
   public getPokemon = async (resId: string | number): Promise<Pokemon> => {
-    const species = await this.getPokemonSpecies(resId);
+    let species: PokemonSpecies;
 
-    // Accounts for a name being passed in, since we don't know its number until we fetch it.
-    if (species.id > 251) {
-      throw new Error("Sorry, only Pokemon from generations I and II are allowed.");
+    try {
+      species = await this.getPokemonSpecies(resId);
+
+      // Accounts for a name being passed in, since we don't know its number until we fetch it.
+      if (species.id > 251) {
+        throw new PokemonOutOfRangeError(species.id);
+      }
+    } catch (err) {
+      console.error(err);
+      throw new PokemonNotFoundError(resId);
     }
 
     // For simplicity's sake, we're sticking with a "default" variety
     const defaultVariety = species.varieties.find(v => v.is_default) ?? species.varieties[0];
     const variety = await this.getPokemonVariety(defaultVariety.pokemon.name);
+
     const moves = this.filterAndMapMoves(variety.moves);
 
     const eggGroups = species.egg_groups.some(g => g.name === "no-eggs")
@@ -46,24 +56,13 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
 
   // Raw Resource Getters
   private getPokemonSpecies = async (resId: string | number): Promise<PokemonSpecies> => {
-    try {
-      const res = await this._client.get<PokemonSpecies>(`pokemon-species/{resId}`);
-      return res.data;
-    } catch (err) {
-      const identifierType = typeof resId === "number"
-        ? "ID"
-        : "name";
-      throw new Error(`Pokemon with ${identifierType} ${resId} could not be found.`);
-    }
+    const res = await this._client.get<PokemonSpecies>(`pokemon-species/${resId}`);
+    return res.data;
   }
 
   private getPokemonVariety = async (name: string): Promise<PokemonVariety> => {
-    try {
-      const res = await this._client.get(`pokemon/${name}`);
-      return res.data;
-    } catch (err) {
-      throw new Error(`${name} is not a valid Pokemon variety.`);
-    }
+    const res = await this._client.get(`pokemon/${name}`);
+    return res.data;
   }
 
   // Helpers
