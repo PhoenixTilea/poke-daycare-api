@@ -1,9 +1,12 @@
+import "reflect-metadata";
+import {AppDataSource} from "./data/dataSource";
 import bodyParser from "body-parser";
 import express from "express";
 import container, {bindDbRepositories} from "./container";
-import {AppDataSource} from "./data/dataSource";
+import authMiddleware from "./middleware/authMiddleware";
 import errorMiddleware from "./middleware/errorMiddleware";
 import pokemonRouter from "./routers/pokemonRouter";
+import trainerRouter from "./routers/trainerRouter";
 
 AppDataSource.initialize().then(async () => {
   bindDbRepositories(AppDataSource);
@@ -11,9 +14,11 @@ AppDataSource.initialize().then(async () => {
   // create express app
   const app = express();
   app.use(bodyParser.json());
+  app.use(authMiddleware(container));
 
   // Add routes
   app.use("/api/pokemon", pokemonRouter(container));
+  app.use("/api/trainer", trainerRouter(container));
 
   // Catch errors
   app.use(errorMiddleware);

@@ -1,21 +1,30 @@
 import type {Relation} from "typeorm";
-import {Column, Entity, OneToMany, PrimaryColumn} from "typeorm";
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import Pokemon from "./pokemonEntity";
 
 @Entity("Trainers")
 export default class TrainerEntity {
-  @PrimaryColumn()
-  username: string = "";
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-  @Column()
-  password: string = "";
+  @Column({
+    type: "text",
+    unique: true
+  })
+  username!: string;
 
-  @Column()
-  steps: number = 0;
+  @Column("text")
+  password!: string;
+
+  @Column({
+    type: "int",
+    default: 0
+  })
+  steps!: number;
 
   @OneToMany(() => Pokemon, (pokemon) => pokemon.trainer)
-  registeredPokemon: Relation<Pokemon[]> = [];
+  registeredPokemon!: Relation<Pokemon[]>;
 
-  @Column()
-  hasEgg: boolean = false;
+  @Column("boolean")
+  hasEgg!: boolean;
 }

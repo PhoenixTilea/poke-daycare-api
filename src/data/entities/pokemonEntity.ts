@@ -5,23 +5,32 @@ import Trainer from "./trainerEntity";
 @Entity("Pokemon")
 export default class PokemonEntity {
   @PrimaryGeneratedColumn()
-  registrationId: number = 0;
+  registrationId!: number;
 
-  @Column()
-  pokemonId: number = 1;
+  @Column("int")
+  pokemonId!: number;
 
-  @Column({nullable: true})
+  @Column({
+    type: "text",
+    nullable: true
+  })
   nickname?: string;
 
   @ManyToOne(() => Trainer, (trainer) => trainer.registeredPokemon)
-  trainer: Relation<Trainer> = new Trainer();
+  trainer!: Relation<Trainer>;
 
-  @Column()
-  isFemale: boolean = false;
+  @Column({
+    type: "boolean",
+    default: false
+  })
+  isFemale!: boolean;
 
-  @Column({update: false})
-  levelAtRegistration: number = 1;
+  @Column({
+    type: "int",
+    update: false
+  })
+  levelAtRegistration!: number;
 
   @Column("simple-array")
-  moves: string[] = [];
+  moves!: string[];
 }

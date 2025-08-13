@@ -1,16 +1,14 @@
 import axios from "axios";
 import {Container} from "inversify";
 import Cache from "node-cache";
-import {cachingServiceId} from "./contracts/iCachingService";
-import {pokemonApiRepositoryId} from "./contracts/iPokemonApiRepository";
-import {pokemonServiceId} from "./contracts/iPokemonService";
+import type {DataSource} from "typeorm";
+import {cachingServiceId, pokemonApiRepositoryId, pokemonRepositoryId, pokemonServiceId, trainerRepositoryId, trainerServiceId} from "./contracts";
+import PokemonEntity from "./data/entities/pokemonEntity";
+import TrainerEntity from "./data/entities/trainerEntity";
 import PokemonApiRepository, {axiosClientId} from "./repositories/pokemonApiRepository";
 import CachingService, {cacheId} from "./services/cachingService";
 import PokemonService from "./services/pokemonService";
-import type {DataSource} from "typeorm";
-import {pokemonRepositoryId, trainerRepositoryId} from "./contracts/dbRepositories";
-import PokemonEntity from "./data/entities/pokemonEntity";
-import TrainerEntity from "./data/entities/trainerEntity";
+import TrainerService from "./services/trainerService";
 
 const container = new Container();
 
@@ -32,6 +30,9 @@ container.bind(pokemonApiRepositoryId)
   .inSingletonScope();
 container.bind(pokemonServiceId)
   .to(PokemonService)
+  .inSingletonScope();
+container.bind(trainerServiceId)
+  .to(TrainerService)
   .inSingletonScope();
 
 export const bindDbRepositories = (dataSource: DataSource) => {
