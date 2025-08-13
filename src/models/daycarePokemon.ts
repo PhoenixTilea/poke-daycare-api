@@ -6,7 +6,7 @@ export default class DaycarePokemon {
     public readonly registrationId: number,
     public readonly species: Pokemon,
     private _experience: number,
-    public readonly levelAtLastCheck: number,
+    public readonly levelAtRegistration: number,
     private _moves: string[] = [],
     public readonly nickname: string | null = null,
     public readonly isFemale: boolean = false,

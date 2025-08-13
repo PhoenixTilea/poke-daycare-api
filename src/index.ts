@@ -3,7 +3,7 @@ import {AppDataSource} from "./data/dataSource";
 import bodyParser from "body-parser";
 import express from "express";
 import container, {bindDbRepositories} from "./container";
-import authMiddleware from "./middleware/authMiddleware";
+import authMiddleware from "./middleware/authenticationMiddleware";
 import errorMiddleware from "./middleware/errorMiddleware";
 import pokemonRouter from "./routers/pokemonRouter";
 import trainerRouter from "./routers/trainerRouter";

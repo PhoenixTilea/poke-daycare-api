@@ -1,12 +1,11 @@
 import {Router} from "express";
 import type {Container} from "inversify";
 import StatusCodeError from "../errors/statusCodeError";
-import {ITrainerService, trainerServiceId} from "../contracts";
-
-type Credentials = {
-  username: string;
-  password: string;
-};
+import {IPokemonService, ITrainerService, pokemonServiceId, trainerServiceId} from "../contracts";
+import authorizationMiddleware from "../middleware/authorizationMiddleware";
+import {isCredentials, validateCredentials} from "./dtos/credentials";
+import {isPokemonRegistration} from "./dtos/pokemonRegistration";
+import type {AuthenticatedRequest} from "../auth";
 
 const trainerRouter = (container: Container) => {
   const router = Router();
@@ -32,26 +31,35 @@ const trainerRouter = (container: Container) => {
     }
   });
 
+  // Require authenticated requests for remaining routes
+  router.use(authorizationMiddleware);
+
+  router.post("/pokemon/register", async (req, res, next) => {
+    const regData = req.body;
+    if (!isPokemonRegistration(regData)) {
+      return next(new StatusCodeError("Invalid Pokemon registration data.", 400));
+    }
+
+    const {username} = req as AuthenticatedRequest;
+    const pokemonService: IPokemonService = container.get(pokemonServiceId);
+    const registeredPokemon = await pokemonService.getTrainersPokemon(username);
+    if (registeredPokemon.length >= 2) {
+      return next(new StatusCodeError("Only up to 2 Pokemon can be registered at a time.", 400));
+    }
+
+    try {
+      const newPokemon = await pokemonService.registerNewPokemon(username, regData.speciesId, regData.level, regData.moves, regData.nickname, regData.isFemale);
+      res.status(201);
+      res.json({
+        registrationId: newPokemon.registrationId,
+        message: `Great! We'll take good care of ${newPokemon.nickname ?? newPokemon.species.name}!`
+      });
+    } catch (err) {
+      return next(err);
+    }
+  });
+
   return router;
-}
-
-const isCredentials = (creds: unknown): creds is Credentials => {
-  return typeof (creds as Credentials)?.username === "string"
-    && typeof (creds as Credentials)?.password === "string";
-}
-
-const validateCredentials = (creds: Credentials): string | null => {
-  const usernameRegex = /^[a-zA-Z0-9_]{8, 20}$/;
-  if (!usernameRegex.test(creds.username)) {
-    return "Username must be between 8 and 20 characters long and container only letters, numbers, and underscores.";
-  }
-
-  const passwordRegex = /^[a-zA-Z0-9_$@!]{8, 20}$/;
-  if (!passwordRegex.test(creds.password)) {
-    return "Password must be between 8 and 20 characters and can only container letters, number, and the special characters _, $, @, and !.";
-  }
-
-  return null;
 }
 
 export default trainerRouter;

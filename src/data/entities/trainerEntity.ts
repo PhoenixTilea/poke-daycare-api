@@ -16,12 +16,6 @@ export default class TrainerEntity {
   @Column("text")
   password!: string;
 
-  @Column({
-    type: "int",
-    default: 0
-  })
-  steps!: number;
-
   @OneToMany(() => Pokemon, (pokemon) => pokemon.trainer)
   registeredPokemon!: Relation<Pokemon[]>;
 

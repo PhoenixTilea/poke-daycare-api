@@ -31,6 +31,9 @@ export default class PokemonEntity {
   })
   levelAtRegistration!: number;
 
+  @Column("int")
+  exp!: number;
+
   @Column("simple-array")
   moves!: string[];
 }

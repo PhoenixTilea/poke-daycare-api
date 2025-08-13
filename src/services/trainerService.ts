@@ -39,18 +39,18 @@ export default class TrainerService implements ITrainerService {
     });
   }
 
-  public addStepsToTrainer = async (username: string, steps: number): Promise<number> => {
+  public addStepsToTrainer = async (username: string, steps: number) => {
     const trainer = await this.getTrainer(username);
-    trainer.steps += steps;
+    trainer.registeredPokemon.forEach(p => {
+      p.exp += steps;
+    });
     await this._trainerRepository.save(trainer);
-    return trainer.steps;
   }
 
   private getTrainer = async (username: string): Promise<Omit<TrainerEntity, "password">> => {
     const trainer = this._trainerRepository.findOneOrFail({
       select: {
         username: true,
-        steps: true,
         registeredPokemon: true
       },
       where: {
