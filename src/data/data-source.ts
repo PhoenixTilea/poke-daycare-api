@@ -1,14 +1,12 @@
-import "reflect-metadata"
-import {DataSource} from "typeorm"
-import Pokemon from "./entities/pokemon";
-import Trainer from "./entities/trainer";
+import "reflect-metadata";
+import {DataSource} from "typeorm";
 
 export const AppDataSource = new DataSource({
     type: "sqlite",
     database: "database.sqlite",
     synchronize: true,
     logging: false,
-    entities: [Pokemon, Trainer],
+    entities: ["./entities/*Entity.ts"],
     migrations: [],
     subscribers: [],
 });

@@ -1,17 +1,18 @@
-import {Entity, Column, PrimaryGeneratedColumn, OneToMany} from "typeorm";
+import type {Relation} from "typeorm";
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import Pokemon from "./pokemon";
 
-@Entity()
-export default class Trainer {
+@Entity("Trainers")
+export default class TrainerEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number = 0;
 
   @Column()
-  username: string;
+  username: string = "";
 
   @Column()
-  password: string;
+  password: string = "";
 
   @OneToMany(() => Pokemon, (pokemon) => pokemon.trainer)
-  registeredPokemon: Pokemon[];
+  registeredPokemon: Relation<Pokemon[]> = [];
 }

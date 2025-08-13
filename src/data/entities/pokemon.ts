@@ -1,20 +1,35 @@
-import {Entity, Column, PrimaryGeneratedColumn, ManyToOne} from "typeorm";
+import type {Relation} from "typeorm";
+import {Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, JoinTable} from "typeorm";
 import Trainer from "./trainer";
+import Move from "./move";
 
-@Entity()
-export default class Pokemon {
+@Entity("RegisteredPokemon")
+export default class RegisteredPokemonEntity {
   @PrimaryGeneratedColumn()
-  registrationId: number;
+  registrationId: number = 0;
 
   @Column()
-  pokemonId: number;
+  pokemonId: number = 1;
+
+  @Column()
+  nickname?: string;
 
   @ManyToOne(() => Trainer, (trainer) => trainer.registeredPokemon)
-  trainer: Trainer;
+  trainer: Relation<Trainer> = new Trainer();
 
   @Column()
-  isFemale: boolean;
+  isFemale: boolean = false;
 
   @Column()
-  level: number;
+  exp: number = 0;
+
+  @Column()
+  levelAtLastCheck: number = 1;
+
+  @Column()
+  hasEgg: boolean = false;
+
+  @ManyToMany(() => Move)
+  @JoinTable()
+  moves: Move[] = [];
 }
