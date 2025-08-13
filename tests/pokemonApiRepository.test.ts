@@ -8,6 +8,7 @@ jest.mock("axios");
 
 describe("PokemonApiRepository", () => {
   const fakeAxios = jest.mocked(axios);
+  const repo = new PokemonApiRepository(fakeAxios);
 
   beforeEach(() => {
     jest.restoreAllMocks();
@@ -22,7 +23,6 @@ describe("PokemonApiRepository", () => {
           return Promise.resolve({data: fakes.blobadooVariety});
         }
       });
-      const repo = new PokemonApiRepository(fakeAxios);
 
       const result = await repo.getPokemon("blobadoo");
       expect(result.id).toBe(1);
@@ -48,7 +48,6 @@ describe("PokemonApiRepository", () => {
         }
         return Promise.resolve({data: fakes.blobadooVariety});
       });
-      const repo = new PokemonApiRepository(fakeAxios);
 
       const result = await repo.getPokemon(1);
       expect(result.canBeFemale).toBe(canBeFemale);
@@ -66,7 +65,6 @@ describe("PokemonApiRepository", () => {
         }
         return Promise.resolve({data: fakes.blobadooVariety});
       });
-      const repo = new PokemonApiRepository(fakeAxios);
 
       const result = await repo.getPokemon(1);
       expect(result.canBreed).toBe(false);
@@ -77,7 +75,6 @@ describe("PokemonApiRepository", () => {
       fakeAxios.get.mockImplementation(() => {
         throw new Error("Fake error");
       });
-      const repo = new PokemonApiRepository(fakeAxios);
 
       return expect(() => repo.getPokemon(123)).rejects.toThrow(new PokemonNotFoundError(123));
     });
@@ -88,7 +85,6 @@ describe("PokemonApiRepository", () => {
           name: "wromadam"
         }
       }));
-      const repo = new PokemonApiRepository(fakeAxios);
 
       return expect(() => repo.getPokemon("wormadam")).rejects.toThrow(new PokemonOutOfRangeError(413));
     });
@@ -109,7 +105,6 @@ describe("PokemonApiRepository", () => {
           throw new Error("Axios error");
         }
       });
-      const repo = new PokemonApiRepository(fakeAxios);
 
       return expect(() => repo.getPokemon(25)).rejects.toThrow("Axios error");
     });
