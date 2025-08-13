@@ -1,17 +1,17 @@
 import type {Relation} from "typeorm";
 import {Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, JoinTable} from "typeorm";
-import Trainer from "./trainer";
-import Move from "./move";
+import Trainer from "./trainerEntity";
+import Move from "./moveEntity";
 
-@Entity("RegisteredPokemon")
-export default class RegisteredPokemonEntity {
+@Entity("Pokemon")
+export default class PokemonEntity {
   @PrimaryGeneratedColumn()
   registrationId: number = 0;
 
   @Column()
   pokemonId: number = 1;
 
-  @Column()
+  @Column({nullable: true})
   nickname?: string;
 
   @ManyToOne(() => Trainer, (trainer) => trainer.registeredPokemon)

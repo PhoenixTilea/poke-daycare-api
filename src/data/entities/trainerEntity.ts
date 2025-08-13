@@ -1,13 +1,10 @@
 import type {Relation} from "typeorm";
-import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import Pokemon from "./pokemon";
+import {Column, Entity, OneToMany, PrimaryColumn} from "typeorm";
+import Pokemon from "./pokemonEntity";
 
 @Entity("Trainers")
 export default class TrainerEntity {
-  @PrimaryGeneratedColumn()
-  id: number = 0;
-
-  @Column()
+  @PrimaryColumn()
   username: string = "";
 
   @Column()

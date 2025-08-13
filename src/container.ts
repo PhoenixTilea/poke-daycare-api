@@ -7,6 +7,10 @@ import {pokemonServiceId} from "./contracts/iPokemonService";
 import PokemonApiRepository, {axiosClientId} from "./repositories/pokemonApiRepository";
 import CachingService, {cacheId} from "./services/cachingService";
 import PokemonService from "./services/pokemonService";
+import type {DataSource} from "typeorm";
+import {pokemonRepositoryId, trainerRepositoryId} from "./contracts/dbRepositories";
+import PokemonEntity from "./data/entities/pokemonEntity";
+import TrainerEntity from "./data/entities/trainerEntity";
 
 const container = new Container();
 
@@ -29,5 +33,12 @@ container.bind(pokemonApiRepositoryId)
 container.bind(pokemonServiceId)
   .to(PokemonService)
   .inSingletonScope();
+
+export const bindDbRepositories = (dataSource: DataSource) => {
+  container.bind(pokemonRepositoryId)
+    .toConstantValue(dataSource.getRepository(PokemonEntity));
+  container.bind(trainerRepositoryId)
+    .toConstantValue(dataSource.getRepository(TrainerEntity));
+}
 
 export default container;
