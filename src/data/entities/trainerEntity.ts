@@ -10,6 +10,12 @@ export default class TrainerEntity {
   @Column()
   password: string = "";
 
+  @Column()
+  steps: number = 0;
+
   @OneToMany(() => Pokemon, (pokemon) => pokemon.trainer)
   registeredPokemon: Relation<Pokemon[]> = [];
+
+  @Column()
+  hasEgg: boolean = false;
 }
