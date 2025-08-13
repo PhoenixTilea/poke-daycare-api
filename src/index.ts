@@ -1,5 +1,5 @@
-import * as bodyParser from "body-parser";
-import * as express from "express";
+import bodyParser from "body-parser";
+import express from "express";
 // import {AppDataSource} from "./data/data-source";
 import container from "./container";
 import errorMiddleware from "./middleware/errorMiddleware";

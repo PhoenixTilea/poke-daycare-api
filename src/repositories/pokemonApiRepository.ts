@@ -17,14 +17,14 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
 
   ) {}
 
-  public getPokemon = async (resId: string | number): Promise<Pokemon> => {
+  public getPokemon = async (pokeId: string | number): Promise<Pokemon> => {
     let species: PokemonSpecies;
 
     try {
-      species = await this.getPokemonSpecies(resId);
+      species = await this.getPokemonSpecies(pokeId);
     } catch (err) {
       console.error(err);
-      throw new PokemonNotFoundError(resId);
+      throw new PokemonNotFoundError(pokeId);
     }
 
     // Accounts for a name being passed in, since we don't know its number until we fetch it.
@@ -68,8 +68,8 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
     return res.data;
   }
 
-  private getPokemonSpecies = async (resId: string | number): Promise<PokemonSpecies> => {
-    const res = await this._client.get<PokemonSpecies>(`pokemon-species/${resId}`);
+  private getPokemonSpecies = async (pokeId: string | number): Promise<PokemonSpecies> => {
+    const res = await this._client.get<PokemonSpecies>(`pokemon-species/${pokeId}`);
     return res.data;
   }
 
