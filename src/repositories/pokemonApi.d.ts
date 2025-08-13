@@ -1,11 +1,9 @@
 type NamedApiResource = {
   name: string;
-  url: string;
 }
 
 export type PokemonSpecies = {
   egg_groups: NamedApiResource[];
-  evolves_from_species: NamedApiResource | null;
   gender_rate: number;
   growth_rate: NamedApiResource;
   id: number;

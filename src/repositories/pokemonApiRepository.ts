@@ -84,17 +84,17 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
   private filterAndMapMoves = (apiMoves: ApiPokemonMove[]): PokemonMove[] => {
     const moves: Record<string, PokemonMove> = {};
     for (const m of apiMoves) {
-      const version = m.version_group_details.find(v => v.version_group.name === "crystal");
-      if (!version) {
+      const crystalDetails = m.version_group_details.filter(v => v.version_group.name === "crystal");
+      if (crystalDetails.length === 0) {
         continue;
       }
 
       // We don't need to know all the different ways a move can be learned,
       // only that it can be and at what level - if any.
-      const existingMove = moves[m.move.name];
-      if (!existingMove || version.level_learned_at > existingMove.levelLearned) {
-        moves[m.move.name] = new PokemonMove(m.move.name, version.level_learned_at, version.order);
-      }
+      crystalDetails.sort((v1, v2) => v2.level_learned_at - v1.level_learned_at);
+      const version = crystalDetails[0];
+
+      moves[m.move.name] = new PokemonMove(m.move.name, version.level_learned_at, version.order);
     }
 
     return Array.from(Object.values(moves));

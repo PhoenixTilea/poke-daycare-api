@@ -2,6 +2,7 @@ import axios from "axios";
 import PokemonApiRepository from "../src/repositories/pokemonApiRepository";
 import PokemonNotFoundError from "../src/errors/pokemonNotFoundError";
 import PokemonOutOfRangeError from "../src/errors/pokemonOutOfRangeError";
+import * as fakes from "./testData/testPokemonApiData";
 
 jest.mock("axios");
 
@@ -13,6 +14,65 @@ describe("PokemonApiRepository", () => {
   });
 
   describe("getPokemon", () => {
+    it("Should build a basic Pokemon.", async () => {
+      fakeAxios.get.mockImplementation((path: string) => {
+        if (path.includes("species")) {
+          return Promise.resolve({data: fakes.blobadoo});
+        } else {
+          return Promise.resolve({data: fakes.blobadooVariety});
+        }
+      });
+      const repo = new PokemonApiRepository(fakeAxios);
+
+      const result = await repo.getPokemon("blobadoo");
+      expect(result.id).toBe(1);
+      expect(result.name).toBe("Blobadoo");
+      expect(result.canBeFemale).toBe(true);
+      expect(result.canBeMale).toBe(true);
+      expect(result.canBreed).toBe(true);
+      expect(result.eggGroups).toEqual(["monster"]);
+      expect(result.growthRate).toBe("slow");
+      expect(result.possibleMoves).toHaveLength(1);
+      expect(result.possibleMoves[0].levelLearned).toBe(40);
+      expect(result.possibleMoves[0].name).toBe("Consume");
+      expect(result.possibleMoves[0].order).toBe(4);
+    });
+    it.each([
+      [fakes.femaleOnlyBlobadoo, true, false],
+      [fakes.maleOnlyBlobadoo, false, true],
+      [fakes.genderlessBlobadoo, false, false]
+    ])("Should set gender properties according to species.", async (blobadoo, canBeFemale, canBeMale) => {
+      fakeAxios.get.mockImplementation((path: string) => {
+        if (path.includes("species")) {
+          return Promise.resolve({data: blobadoo});
+        }
+        return Promise.resolve({data: fakes.blobadooVariety});
+      });
+      const repo = new PokemonApiRepository(fakeAxios);
+
+      const result = await repo.getPokemon(1);
+      expect(result.canBeFemale).toBe(canBeFemale);
+      expect(result.canBeMale).toBe(canBeMale);
+    });
+    it.each([
+      fakes.babyBlobadoo,
+      fakes.legendaryBlobadoo,
+      fakes.mythicalBlobadoo,
+      fakes.noEggsBlobadoo
+    ])("Should set baby, legendary, mythical, and 'no-egg' Pokemon as unable to breed.", async (blobadoo) => {
+      fakeAxios.get.mockImplementation((path: string) => {
+        if (path.includes("species")) {
+          return Promise.resolve({data: blobadoo});
+        }
+        return Promise.resolve({data: fakes.blobadooVariety});
+      });
+      const repo = new PokemonApiRepository(fakeAxios);
+
+      const result = await repo.getPokemon(1);
+      expect(result.canBreed).toBe(false);
+    });
+
+    // Errors
     it("Should throw PokemonNotFoundError if species is not found.", async () => {
       fakeAxios.get.mockImplementation(() => {
         throw new Error("Fake error");
