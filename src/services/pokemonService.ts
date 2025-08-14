@@ -141,8 +141,10 @@ export default class PokemonService implements IPokemonService {
       exp: await this.getBaseExpForLevel(species.id, level),
       levelAtRegistration: level,
       isFemale: isFemale ?? false,
+      moves,
       trainer,
     });
+    await this._pokemonRepository.save(newPokemon);
 
     return this.mapDaycarePokemonFromEntity(newPokemon);
   };

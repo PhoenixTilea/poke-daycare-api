@@ -69,7 +69,7 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
   public getExperiencePerLevel = async (rate: string): Promise<number[]> => {
     const growthRate = await this.getGrowthRate(rate);
     const exp = growthRate.levels.map(l => l.experience);
-    exp.sort();
+    exp.sort((a, b) => a - b);
     return exp;
   };
 
