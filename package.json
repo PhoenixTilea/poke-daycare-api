@@ -32,9 +32,13 @@
   },
   "scripts": {
     "lint": "npx eslint ./src",
-    "prepare": "husky",
     "start": "npx tsx src/index.ts",
     "test": "npx jest ./tests",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "typeorm": "typeorm-ts-node-commonjs",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.ts": "eslint --cache --fix",
+    "*.{ts,md}": "prettier --write"
   }
 }
