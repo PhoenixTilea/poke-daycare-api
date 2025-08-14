@@ -1,21 +1,15 @@
 import type { Relation } from "typeorm";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import Pokemon from "./pokemonEntity";
 
 @Entity("Trainers")
 export default class TrainerEntity {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column({ type: "text", unique: true })
+  @PrimaryColumn("text")
   username!: string;
 
   @Column("text")
   password!: string;
 
-  @OneToMany(() => Pokemon, pokemon => pokemon.trainer)
+  @OneToMany(() => Pokemon, pokemon => pokemon.trainer, { cascade: true })
   registeredPokemon!: Relation<Pokemon[]>;
-
-  @Column({ type: "boolean", default: false })
-  hasEgg!: boolean;
 }

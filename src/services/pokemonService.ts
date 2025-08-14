@@ -11,6 +11,7 @@ import type {
   IPokemonRepository,
   IPokemonService,
   ITrainerRepository,
+  PokemonPickupInfo,
 } from "../contracts";
 import type Pokemon from "../models/pokemon";
 import DaycarePokemon from "../models/daycarePokemon";
@@ -144,9 +145,80 @@ export default class PokemonService implements IPokemonService {
       moves,
       trainer,
     });
+    trainer.registeredPokemon = trainer.registeredPokemon
+      ? [...trainer.registeredPokemon, newPokemon]
+      : [newPokemon];
     await this._pokemonRepository.save(newPokemon);
+    await this._trainerRepository.save(trainer);
 
     return this.mapDaycarePokemonFromEntity(newPokemon);
+  };
+
+  public pickUpPokemon = async (
+    username: string,
+    registrationId: number,
+  ): Promise<PokemonPickupInfo> => {
+    const allPokemon = await this.getTrainersPokemon(username);
+
+    const pokemon = allPokemon.find(p => p.registrationId === registrationId);
+    if (!pokemon) {
+      throw new StatusCodeError(
+        `You don't have a Pokemon with registration ID ${registrationId} checked in with us.`,
+        404,
+      );
+    }
+
+    const level = await this.getLevelForExp(
+      pokemon.species.id,
+      pokemon.experience,
+    );
+    const hasLearnedMoves = pokemon.levelUpAndLearnMoves(level);
+
+    let hasAnEgg = false;
+    const otherPokemon = allPokemon.find(p => p !== pokemon);
+    if (otherPokemon && pokemon.canBreedWith(otherPokemon)) {
+      const eggChance =
+        pokemon.species.id === otherPokemon.species.id ? 50 : 20;
+
+      // Normally this would be calculated every 256 steps, but Ima make it simpler for now
+      const random = Math.random() * 99;
+      if (random < eggChance) {
+        hasAnEgg = true;
+      }
+    }
+
+    const message = this.generatePickupMessage(
+      pokemon,
+      hasLearnedMoves,
+      hasAnEgg,
+    );
+
+    await this._pokemonRepository.delete(registrationId);
+    return { pokemon, message };
+  };
+
+  private generatePickupMessage = (
+    pokemon: DaycarePokemon,
+    hasLearnedMoves: boolean,
+    hasAnEgg: boolean,
+  ): string => {
+    const levelsGained = pokemon.level - pokemon.levelAtRegistration;
+    let message = `${pokemon.nickname ?? pokemon.species.name} looks happy to see you `;
+    if (levelsGained > 0) {
+      message += `and has grown by ${levelsGained} level${levelsGained > 1 ? "s" : ""}! `;
+      if (hasLearnedMoves) {
+        message += "It has even learned some new moves!";
+      }
+    } else {
+      message += ` but hasn't grown much.`;
+    }
+
+    if (hasAnEgg) {
+      message +=
+        " Oh, and we found your pokemon holding this egg. Hope you're ready for parenthood!";
+    }
+
+    return message;
   };
 
   private getExperienceFromCache = (rate: string): Promise<number[]> => {

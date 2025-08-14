@@ -1,6 +1,8 @@
 import type Pokemon from "./pokemon";
 
 export default class DaycarePokemon {
+  private _level: number;
+
   constructor(
     public readonly registrationId: number,
     public readonly species: Pokemon,
@@ -9,7 +11,9 @@ export default class DaycarePokemon {
     private _moves: string[] = [],
     public readonly nickname: string | null = null,
     public readonly isFemale: boolean = false,
-  ) {}
+  ) {
+    this._level = levelAtRegistration;
+  }
 
   get experience() {
     return this._experience;
@@ -17,6 +21,10 @@ export default class DaycarePokemon {
 
   get isMale() {
     return !this.species.isGenderless && !this.isFemale;
+  }
+
+  get level() {
+    return this._level;
   }
 
   get moves() {
@@ -33,12 +41,15 @@ export default class DaycarePokemon {
     return (this.isFemale && other.isMale) || (this.isMale && other.isFemale);
   };
 
-  public gainExperience = (exp: number): number => {
-    this._experience += exp;
-    return this._experience;
+  public levelUpAndLearnMoves = (level: number): boolean => {
+    if (level > this._level) {
+      this._level = level;
+      return this.tryLearnMovesAfterLevelUp(this.levelAtRegistration, level);
+    }
+    return false;
   };
 
-  public tryLearnMovesAfterLevelUp = (
+  private tryLearnMovesAfterLevelUp = (
     prevLevel: number,
     currentLevel: number,
   ): boolean => {

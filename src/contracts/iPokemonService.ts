@@ -1,6 +1,8 @@
 import type { ServiceIdentifier } from "inversify";
-import type Pokemon from "../models/pokemon";
 import type DaycarePokemon from "../models/daycarePokemon";
+import type Pokemon from "../models/pokemon";
+
+export type PokemonPickupInfo = { pokemon: DaycarePokemon; message: string };
 
 export interface IPokemonService {
   getBaseExpForLevel(pokeId: number, level: number): Promise<number>;
@@ -20,6 +22,10 @@ export interface IPokemonService {
     nickname?: string,
     isFemale?: boolean,
   ): Promise<DaycarePokemon>;
+  pickUpPokemon(
+    username: string,
+    registrationId: number,
+  ): Promise<PokemonPickupInfo>;
 }
 
 export const pokemonServiceId: ServiceIdentifier<IPokemonService> =

@@ -13,7 +13,10 @@ export default class TrainerService implements ITrainerService {
   ) {}
 
   public authenticateTrainer = async (username: string, password: string) => {
-    const trainer = await this._trainerRepository.findOneBy({ username });
+    const trainer = await this._trainerRepository.findOne({
+      select: { username: true, password: true },
+      where: { username },
+    });
 
     if (trainer) {
       return bcrypt.compare(password, trainer.password);
@@ -32,6 +35,7 @@ export default class TrainerService implements ITrainerService {
     const trainer = await this._trainerRepository.create({
       username,
       password: hashedPassword,
+      registeredPokemon: [],
     });
     await this._trainerRepository.save(trainer);
   };
@@ -44,14 +48,13 @@ export default class TrainerService implements ITrainerService {
     await this._trainerRepository.save(trainer);
   };
 
-  private getTrainer = async (
+  private getTrainer = (
     username: string,
   ): Promise<Omit<TrainerEntity, "password">> => {
-    const trainer = this._trainerRepository.findOneOrFail({
+    return this._trainerRepository.findOneOrFail({
+      relations: { registeredPokemon: true },
       select: { username: true, registeredPokemon: true },
       where: { username },
     });
-
-    return trainer;
   };
 }

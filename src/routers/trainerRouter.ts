@@ -1,15 +1,15 @@
 import { Router } from "express";
 import type { Container } from "inversify";
-import StatusCodeError from "../errors/statusCodeError";
+import type { AuthenticatedRequest } from "../auth";
 import {
   IPokemonService,
   pokemonServiceId,
   trainerServiceId,
 } from "../contracts";
+import StatusCodeError from "../errors/statusCodeError";
 import authorizationMiddleware from "../middleware/authorizationMiddleware";
 import { isCredentials, validateCredentials } from "./dtos/credentials";
 import { isPokemonRegistration } from "./dtos/pokemonRegistration";
-import type { AuthenticatedRequest } from "../auth";
 
 const trainerRouter = (container: Container) => {
   const router = Router();
@@ -134,6 +134,56 @@ const trainerRouter = (container: Container) => {
       return next(err);
     }
   });
+
+  router.post("/steps/:count(\\d+)", async (req, res, next) => {
+    const { username } = req as AuthenticatedRequest;
+    const steps = parseInt(req.params.count);
+    if (isNaN(steps)) {
+      return next(
+        new StatusCodeError("Step count is not a valid number.", 400),
+      );
+    }
+
+    const trainerService = container.get(trainerServiceId);
+    try {
+      await trainerService.addStepsToTrainer(username, steps);
+      res.send("Great job! Your Pokemon are growing!");
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  router.delete(
+    "/pokemon/pickup/:registrationId(\\d+)",
+    async (req, res, next) => {
+      const { username } = req as AuthenticatedRequest;
+      const registrationId = parseInt(req.params.registrationId);
+      if (isNaN(registrationId)) {
+        return next(
+          new StatusCodeError("Invalid Pokemon registration ID.", 400),
+        );
+      }
+
+      const pokemonService = container.get(pokemonServiceId);
+      try {
+        const { pokemon, message } = await pokemonService.pickUpPokemon(
+          username,
+          registrationId,
+        );
+        return res.json({
+          message,
+          pokemon: {
+            name: pokemon.nickname ?? pokemon.species.name,
+            species: pokemon.species.name,
+            level: pokemon.level,
+            moves: pokemon.moves,
+          },
+        });
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
 
   return router;
 };
