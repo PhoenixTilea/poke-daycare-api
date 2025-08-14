@@ -64,6 +64,19 @@ export default class PokemonService implements IPokemonService {
     return pokemon;
   }
 
+  public getTrainersPokemonById = async (username: string, registrationId: number): Promise<DaycarePokemon | null> => {
+    const entity = await this._pokemonRepository.findOneBy({
+      registrationId,
+      trainer: {
+        username
+      }
+    });
+
+    return entity
+      ? this.mapDaycarePokemonFromEntity(entity)
+      : null;
+  }
+
   public registerNewPokemon = async (username: string, pokeId: string | number, level: number, moves: string[], nickname?: string, isFemale?: boolean): Promise<DaycarePokemon> => {
     const species = await this.getPokemonFromCache(pokeId);
 

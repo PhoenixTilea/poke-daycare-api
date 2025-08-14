@@ -59,6 +59,38 @@ const trainerRouter = (container: Container) => {
     }
   });
 
+  router.get("/pokemon/:registrationId", async (req, res, next) => {
+    const {username} = ((req as unknown) as AuthenticatedRequest); // Ewww...
+    const registrationId = parseInt(req.params.registrationId, 10);
+    if (isNaN(registrationId) || registrationId < 1) {
+      return next(new StatusCodeError("Invalid pokemon registration ID.", 400));
+    }
+
+    const pokemonService: IPokemonService = container.get(pokemonServiceId);
+    const pokemon = await pokemonService.getTrainersPokemonById(username, registrationId);
+    if (!pokemon) {
+      return next(new StatusCodeError("Sorry, we don't have a pokemon registered under that ID for you.", 404));
+    }
+
+    const currentLevel = await pokemonService.getLevelForExp(pokemon.species.id, pokemon.experience);
+    return res.json({
+      registrationId,
+      name: pokemon.nickname ?? pokemon.species.name,
+      currentLevel,
+      levelsGained: currentLevel - pokemon.levelAtRegistration
+    });
+  });
+
+  router.get("/pokemon", async (req, res, next) => {
+    const {username} = (req as AuthenticatedRequest);
+    const pokemonService: IPokemonService = container.get(pokemonServiceId);
+    const pokemon = await pokemonService.getTrainersPokemon(username);
+    return res.json(pokemon.map(p => ({
+      registrationId: p.registrationId,
+      name: p.nickname ?? p.species.name
+    })));
+  });
+
   return router;
 }
 

@@ -7,7 +7,8 @@ export interface IPokemonService {
   getLevelForExp(pokeId: number, currentExp: number): Promise<number>;
   getPokemon(pokeId: string | number): Promise<Pokemon>;
   getPossiblePokemonMoves(pokeId: string | number): Promise<string[]>;
-  getTrainersPokemon(trainer: string): Promise<DaycarePokemon[]>;
+  getTrainersPokemon(username: string): Promise<DaycarePokemon[]>;
+  getTrainersPokemonById(username: string, registrationId: number): Promise<DaycarePokemon | null>;
   registerNewPokemon(username: string, pokeId: string | number, level: number, moves: string[], nickname?: string, isFemale?: boolean): Promise<DaycarePokemon>;
 }
 
