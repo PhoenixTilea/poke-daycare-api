@@ -11,7 +11,7 @@ export default class Pokemon {
     public readonly canBreed: boolean,
     public readonly eggGroups: string[],
     public readonly growthRate: string,
-    public readonly possibleMoves: PokemonMove[]
+    public readonly possibleMoves: PokemonMove[],
   ) {}
 
   get isDitto() {
@@ -33,9 +33,11 @@ export default class Pokemon {
       return false;
     }
 
-    return (this.canBeFemale && other.canBeMale)
-      || (this.canBeMale && other.canBeFemale);
-  }
+    return (
+      (this.canBeFemale && other.canBeMale) ||
+      (this.canBeMale && other.canBeFemale)
+    );
+  };
 
   public movesLearnedAtLevel = (level: number): PokemonMove[] =>
     this.possibleMoves.filter(m => m.levelLearned === level);

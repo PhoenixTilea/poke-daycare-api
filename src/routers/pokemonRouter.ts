@@ -1,6 +1,9 @@
-import {Router} from "express";
-import type {Container} from "inversify";
-import {IPokemonService, pokemonServiceId} from "../contracts/iPokemonService";
+import { Router } from "express";
+import type { Container } from "inversify";
+import {
+  IPokemonService,
+  pokemonServiceId,
+} from "../contracts/iPokemonService";
 import PokemonOutOfRangeError from "../errors/pokemonOutOfRangeError";
 
 const pokemonRouter = (container: Container) => {
@@ -27,10 +30,8 @@ const pokemonRouter = (container: Container) => {
         eggGroups: pokemon.eggGroups,
         possibleMoves: pokemon.possibleMoves.map(m => ({
           name: m.name,
-          learnedAtLevel: m.levelLearned > 0
-            ? m.levelLearned
-            : null
-        }))
+          learnedAtLevel: m.levelLearned > 0 ? m.levelLearned : null,
+        })),
       });
     } catch (err) {
       next(err);
@@ -38,7 +39,7 @@ const pokemonRouter = (container: Container) => {
   });
 
   return router;
-}
+};
 
 const validatePokemonId = (id: string): string | number | Error => {
   const asNumber = parseInt(id, 10);
@@ -50,6 +51,6 @@ const validatePokemonId = (id: string): string | number | Error => {
   }
 
   return id;
-}
+};
 
 export default pokemonRouter;

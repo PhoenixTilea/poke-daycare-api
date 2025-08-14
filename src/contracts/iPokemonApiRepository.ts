@@ -1,4 +1,4 @@
-import {ServiceIdentifier} from "inversify";
+import { ServiceIdentifier } from "inversify";
 import type Pokemon from "../models/pokemon";
 
 export interface IPokemonApiRepository {
@@ -6,4 +6,5 @@ export interface IPokemonApiRepository {
   getPokemon(pokeId: string | number): Promise<Pokemon>;
 }
 
-export const pokemonApiRepositoryId: ServiceIdentifier<IPokemonApiRepository> = Symbol.for("PokemonApiRepositoryId");
+export const pokemonApiRepositoryId: ServiceIdentifier<IPokemonApiRepository> =
+  Symbol.for("PokemonApiRepositoryId");

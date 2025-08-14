@@ -1,20 +1,25 @@
-import type {AxiosInstance} from "axios";
-import {inject, injectable, ServiceIdentifier} from "inversify";
-import {IPokemonApiRepository} from "../contracts/iPokemonApiRepository";
+import type { AxiosInstance } from "axios";
+import { inject, injectable, ServiceIdentifier } from "inversify";
+import { IPokemonApiRepository } from "../contracts/iPokemonApiRepository";
 import PokemonNotFoundError from "../errors/pokemonNotFoundError";
 import PokemonOutOfRangeError from "../errors/pokemonOutOfRangeError";
 import Pokemon from "../models/pokemon";
 import PokemonMove from "../models/pokemonMove";
-import type {PokemonMove as ApiPokemonMove, GrowthRate, PokemonSpecies, PokemonVariety} from "./pokemonApi";
+import type {
+  PokemonMove as ApiPokemonMove,
+  GrowthRate,
+  PokemonSpecies,
+  PokemonVariety,
+} from "./pokemonApi";
 
-export const axiosClientId: ServiceIdentifier<AxiosInstance> = Symbol.for("AxiosClientId");
+export const axiosClientId: ServiceIdentifier<AxiosInstance> =
+  Symbol.for("AxiosClientId");
 
 @injectable()
 export default class PokemonApiRepository implements IPokemonApiRepository {
   constructor(
     @inject(axiosClientId)
-    private readonly _client: AxiosInstance
-
+    private readonly _client: AxiosInstance,
   ) {}
 
   public getPokemon = async (pokeId: string | number): Promise<Pokemon> => {
@@ -33,7 +38,8 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
     }
 
     // For simplicity's sake, we're sticking with a "default" variety
-    const defaultVariety = species.varieties.find(v => v.is_default) ?? species.varieties[0];
+    const defaultVariety =
+      species.varieties.find(v => v.is_default) ?? species.varieties[0];
     const variety = await this.getPokemonVariety(defaultVariety.pokemon.name);
 
     const moves = this.filterAndMapMoves(variety.moves);
@@ -41,7 +47,12 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
     const eggGroups = species.egg_groups.some(g => g.name === "no-eggs")
       ? []
       : species.egg_groups.map(g => g.name);
-    const canBreed = !(species.is_baby || species.is_legendary || species.is_mythical || eggGroups.length === 0);
+    const canBreed = !(
+      species.is_baby ||
+      species.is_legendary ||
+      species.is_mythical ||
+      eggGroups.length === 0
+    );
 
     return new Pokemon(
       species.id,
@@ -51,32 +62,36 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
       canBreed,
       eggGroups,
       species.growth_rate.name,
-      moves
+      moves,
     );
-  }
+  };
 
   public getExperiencePerLevel = async (rate: string): Promise<number[]> => {
     const growthRate = await this.getGrowthRate(rate);
     const exp = growthRate.levels.map(l => l.experience);
     exp.sort();
     return exp;
-  }
+  };
 
   // Raw Resource Getters
   private getGrowthRate = async (rate: string): Promise<GrowthRate> => {
     const res = await this._client.get(`/growth-rate/${rate}`);
     return res.data;
-  }
+  };
 
-  private getPokemonSpecies = async (pokeId: string | number): Promise<PokemonSpecies> => {
-    const res = await this._client.get<PokemonSpecies>(`pokemon-species/${pokeId}`);
+  private getPokemonSpecies = async (
+    pokeId: string | number,
+  ): Promise<PokemonSpecies> => {
+    const res = await this._client.get<PokemonSpecies>(
+      `pokemon-species/${pokeId}`,
+    );
     return res.data;
-  }
+  };
 
   private getPokemonVariety = async (name: string): Promise<PokemonVariety> => {
     const res = await this._client.get(`pokemon/${name}`);
     return res.data;
-  }
+  };
 
   // Helpers
 
@@ -84,19 +99,27 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
   private filterAndMapMoves = (apiMoves: ApiPokemonMove[]): PokemonMove[] => {
     const moves: Record<string, PokemonMove> = {};
     for (const m of apiMoves) {
-      const crystalDetails = m.version_group_details.filter(v => v.version_group.name === "crystal");
+      const crystalDetails = m.version_group_details.filter(
+        v => v.version_group.name === "crystal",
+      );
       if (crystalDetails.length === 0) {
         continue;
       }
 
       // We don't need to know all the different ways a move can be learned,
       // only that it can be and at what level - if any.
-      crystalDetails.sort((v1, v2) => v2.level_learned_at - v1.level_learned_at);
+      crystalDetails.sort(
+        (v1, v2) => v2.level_learned_at - v1.level_learned_at,
+      );
       const version = crystalDetails[0];
 
-      moves[m.move.name] = new PokemonMove(m.move.name, version.level_learned_at, version.order);
+      moves[m.move.name] = new PokemonMove(
+        m.move.name,
+        version.level_learned_at,
+        version.order,
+      );
     }
 
     return Array.from(Object.values(moves));
-  }
+  };
 }

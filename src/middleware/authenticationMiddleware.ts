@@ -1,7 +1,7 @@
-import type {Request, Response, NextFunction} from "express";
-import type {AuthenticatedRequest} from "../auth";
-import type {Container} from "inversify";
-import {ITrainerService, trainerServiceId} from "../contracts";
+import type { Request, Response, NextFunction } from "express";
+import type { AuthenticatedRequest } from "../auth";
+import type { Container } from "inversify";
+import { ITrainerService, trainerServiceId } from "../contracts";
 
 const authMiddlewareFactory = (container: Container) => {
   const trainerService: ITrainerService = container.get(trainerServiceId);
@@ -13,7 +13,10 @@ const authMiddlewareFactory = (container: Container) => {
       return next();
     }
 
-    const isATrainer = await trainerService.authenticateTrainer(username, password);
+    const isATrainer = await trainerService.authenticateTrainer(
+      username,
+      password,
+    );
     if (isATrainer) {
       (req as AuthenticatedRequest).username = username;
       (req as AuthenticatedRequest).role = "trainer";
@@ -21,6 +24,6 @@ const authMiddlewareFactory = (container: Container) => {
 
     return next();
   };
-}
+};
 
 export default authMiddlewareFactory;

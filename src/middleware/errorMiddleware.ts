@@ -1,9 +1,12 @@
-import type {Request, Response, NextFunction} from "express";
+import type { Request, Response, NextFunction } from "express";
 
-const errorMiddleware = (error: Error, req: Request, res: Response, _next: NextFunction) => {
-  const isAxiosError = "name" in error
-    ? error.name === "AxiosError"
-    : false;
+const errorMiddleware = (
+  error: Error,
+  req: Request,
+  res: Response,
+  _next: NextFunction,
+) => {
+  const isAxiosError = "name" in error ? error.name === "AxiosError" : false;
 
   if (!isAxiosError && "status" in error && typeof error.status === "number") {
     res.status(error.status);
@@ -17,6 +20,6 @@ const errorMiddleware = (error: Error, req: Request, res: Response, _next: NextF
   }
 
   return res.send(error.message);
-}
+};
 
 export default errorMiddleware;

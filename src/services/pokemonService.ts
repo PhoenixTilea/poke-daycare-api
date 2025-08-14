@@ -1,15 +1,26 @@
-import {inject, injectable} from "inversify";
-import {cachingServiceId, pokemonApiRepositoryId, pokemonRepositoryId, trainerRepositoryId} from "../contracts";
-import type {ICachingService, IPokemonApiRepository, IPokemonRepository, IPokemonService, ITrainerRepository} from "../contracts";
+import { inject, injectable } from "inversify";
+import {
+  cachingServiceId,
+  pokemonApiRepositoryId,
+  pokemonRepositoryId,
+  trainerRepositoryId,
+} from "../contracts";
+import type {
+  ICachingService,
+  IPokemonApiRepository,
+  IPokemonRepository,
+  IPokemonService,
+  ITrainerRepository,
+} from "../contracts";
 import type Pokemon from "../models/pokemon";
 import DaycarePokemon from "../models/daycarePokemon";
 import type PokemonEntity from "../data/entities/pokemonEntity";
 import StatusCodeError from "../errors/statusCodeError";
 
-const pokemonKeysFunc = (pokemon: Pokemon) => ([
+const pokemonKeysFunc = (pokemon: Pokemon) => [
   `pokemon_${pokemon.id}`,
-  `pokemon_${pokemon.name}`
-]);
+  `pokemon_${pokemon.name}`,
+];
 
 @injectable()
 export default class PokemonService implements IPokemonService {
@@ -21,35 +32,43 @@ export default class PokemonService implements IPokemonService {
     @inject(pokemonRepositoryId)
     private readonly _pokemonRepository: IPokemonRepository,
     @inject(trainerRepositoryId)
-    private readonly _trainerRepository: ITrainerRepository
+    private readonly _trainerRepository: ITrainerRepository,
   ) {}
 
-  public getBaseExpForLevel = async (pokeId: number, level: number): Promise<number> => {
+  public getBaseExpForLevel = async (
+    pokeId: number,
+    level: number,
+  ): Promise<number> => {
     const pokemon = await this.getPokemon(pokeId);
     const exp = await this.getExperienceFromCache(pokemon.growthRate);
     return exp[level - 1];
-  }
+  };
 
-  public getLevelForExp = async (pokeId: number, currentExp: number): Promise<number> => {
+  public getLevelForExp = async (
+    pokeId: number,
+    currentExp: number,
+  ): Promise<number> => {
     const pokemon = await this.getPokemon(pokeId);
     const exp = await this.getExperienceFromCache(pokemon.growthRate);
 
     return exp.findIndex(e => e > currentExp) ?? 100;
-  }
+  };
 
   public getPokemon = (pokeId: string | number): Promise<Pokemon> =>
     this.getPokemonFromCache(pokeId);
 
-  public getPossiblePokemonMoves = async (pokeId: string | number): Promise<string[]> => {
+  public getPossiblePokemonMoves = async (
+    pokeId: string | number,
+  ): Promise<string[]> => {
     const pokemon = await this.getPokemonFromCache(pokeId);
     return pokemon.possibleMoves.map(m => m.name);
-  }
+  };
 
-  public getTrainersPokemon = async (username: string): Promise<DaycarePokemon[]> => {
+  public getTrainersPokemon = async (
+    username: string,
+  ): Promise<DaycarePokemon[]> => {
     const entities = await this._pokemonRepository.findBy({
-      trainer: {
-        username
-      }
+      trainer: { username },
     });
     if (entities.length === 0) {
       return [];
@@ -62,27 +81,36 @@ export default class PokemonService implements IPokemonService {
     }
 
     return pokemon;
-  }
+  };
 
-  public getTrainersPokemonById = async (username: string, registrationId: number): Promise<DaycarePokemon | null> => {
+  public getTrainersPokemonById = async (
+    username: string,
+    registrationId: number,
+  ): Promise<DaycarePokemon | null> => {
     const entity = await this._pokemonRepository.findOneBy({
       registrationId,
-      trainer: {
-        username
-      }
+      trainer: { username },
     });
 
-    return entity
-      ? this.mapDaycarePokemonFromEntity(entity)
-      : null;
-  }
+    return entity ? this.mapDaycarePokemonFromEntity(entity) : null;
+  };
 
-  public registerNewPokemon = async (username: string, pokeId: string | number, level: number, moves: string[], nickname?: string, isFemale?: boolean): Promise<DaycarePokemon> => {
+  public registerNewPokemon = async (
+    username: string,
+    pokeId: string | number,
+    level: number,
+    moves: string[],
+    nickname?: string,
+    isFemale?: boolean,
+  ): Promise<DaycarePokemon> => {
     const species = await this.getPokemonFromCache(pokeId);
 
     // Validate level
     if (level < 1 || level > 100) {
-      throw new StatusCodeError("Pokemon level must be between 1 and 100.", 400);
+      throw new StatusCodeError(
+        "Pokemon level must be between 1 and 100.",
+        400,
+      );
     }
 
     // Validate move list
@@ -92,7 +120,10 @@ export default class PokemonService implements IPokemonService {
     const validMoves = species.possibleMoves.map(m => m.name);
     const invalidMoves = moves.filter(m => !validMoves.includes(m));
     if (invalidMoves.length > 0) {
-      throw new StatusCodeError(`${species.name} cannot learn the following move(s): ${invalidMoves.join(", ")}.`, 400);
+      throw new StatusCodeError(
+        `${species.name} cannot learn the following move(s): ${invalidMoves.join(", ")}.`,
+        400,
+      );
     }
 
     // Validate gender
@@ -103,34 +134,38 @@ export default class PokemonService implements IPokemonService {
     }
 
     // Good enough!
-    const trainer = await this._trainerRepository.findOneByOrFail({username});
+    const trainer = await this._trainerRepository.findOneByOrFail({ username });
     const newPokemon = await this._pokemonRepository.create({
       pokemonId: species.id,
       nickname,
       exp: await this.getBaseExpForLevel(species.id, level),
       levelAtRegistration: level,
       isFemale: isFemale ?? false,
-      trainer
+      trainer,
     });
 
     return this.mapDaycarePokemonFromEntity(newPokemon);
-  }
+  };
 
   private getExperienceFromCache = (rate: string): Promise<number[]> => {
     const key = `rate_${rate}`;
-    const payloadFunc = async () => await this._pokemonApiRepository.getExperiencePerLevel(rate);
+    const payloadFunc = async () =>
+      await this._pokemonApiRepository.getExperiencePerLevel(rate);
 
     return this._cachingService.cached(key, payloadFunc);
-  }
+  };
 
   private getPokemonFromCache = (pokeId: string | number): Promise<Pokemon> => {
     const key = `pokemon_${pokeId}`;
-    const payloadFunc = async () => await this._pokemonApiRepository.getPokemon(pokeId);
+    const payloadFunc = async () =>
+      await this._pokemonApiRepository.getPokemon(pokeId);
 
     return this._cachingService.cached(key, payloadFunc, pokemonKeysFunc);
-  }
+  };
 
-  private mapDaycarePokemonFromEntity = async (entity: PokemonEntity): Promise<DaycarePokemon> => {
+  private mapDaycarePokemonFromEntity = async (
+    entity: PokemonEntity,
+  ): Promise<DaycarePokemon> => {
     const species = await this.getPokemonFromCache(entity.pokemonId);
     return new DaycarePokemon(
       entity.registrationId,
@@ -139,7 +174,7 @@ export default class PokemonService implements IPokemonService {
       entity.levelAtRegistration,
       entity.moves,
       entity.nickname,
-      entity.isFemale
+      entity.isFemale,
     );
-  }
+  };
 }

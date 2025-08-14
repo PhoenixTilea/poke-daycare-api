@@ -30,19 +30,21 @@ export default class DaycarePokemon {
       return true;
     }
 
-    return (this.isFemale && other.isMale)
-      || (this.isMale && other.isFemale);
-  }
+    return (this.isFemale && other.isMale) || (this.isMale && other.isFemale);
+  };
 
   public gainExperience = (exp: number): number => {
     this._experience += exp;
     return this._experience;
-  }
+  };
 
-  public tryLearnMovesAfterLevelUp = (prevLevel: number, currentLevel: number): boolean => {
-    const movesToLearn = this.species.possibleMoves.filter(m => (
-      m.levelLearned > prevLevel && m.levelLearned <= currentLevel
-    ));
+  public tryLearnMovesAfterLevelUp = (
+    prevLevel: number,
+    currentLevel: number,
+  ): boolean => {
+    const movesToLearn = this.species.possibleMoves.filter(
+      m => m.levelLearned > prevLevel && m.levelLearned <= currentLevel,
+    );
     if (movesToLearn.length === 0) {
       return false;
     }
@@ -60,5 +62,5 @@ export default class DaycarePokemon {
 
     this._moves = currentMoves;
     return true;
-  }
+  };
 }

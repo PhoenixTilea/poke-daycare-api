@@ -1,12 +1,11 @@
-export type Credentials = {
-  username: string;
-  password: string;
-};
+export type Credentials = { username: string; password: string };
 
 export const isCredentials = (creds: unknown): creds is Credentials => {
-  return typeof (creds as Credentials)?.username === "string"
-    && typeof (creds as Credentials)?.password === "string";
-}
+  return (
+    typeof (creds as Credentials)?.username === "string" &&
+    typeof (creds as Credentials)?.password === "string"
+  );
+};
 
 export const validateCredentials = (creds: Credentials): string | null => {
   const usernameRegex = /^[a-zA-Z0-9_]{8, 20}$/;
@@ -20,4 +19,4 @@ export const validateCredentials = (creds: Credentials): string | null => {
   }
 
   return null;
-}
+};
