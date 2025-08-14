@@ -3,7 +3,6 @@ import { inject, injectable } from "inversify";
 import type { Repository } from "typeorm";
 import { ITrainerService, trainerRepositoryId } from "../contracts";
 import type TrainerEntity from "../data/entities/trainerEntity";
-import InvalidUsernameError from "../errors/invalidUsernameError";
 import UsernameUnavailableError from "../errors/usernameUnavailableError";
 
 @injectable()
@@ -14,27 +13,27 @@ export default class TrainerService implements ITrainerService {
   ) {}
 
   public authenticateTrainer = async (username: string, password: string) => {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const exists = await this._trainerRepository.existsBy({
-      username,
-      password: hashedPassword,
-    });
+    const trainer = await this._trainerRepository.findOneBy({ username });
 
-    return exists;
+    if (trainer) {
+      return bcrypt.compare(password, trainer.password);
+    }
+
+    return false;
   };
 
   public registerNewTrainer = async (username: string, password: string) => {
-    this.validateUsername(username);
     const nameIsTaken = await this._trainerRepository.existsBy({ username });
     if (nameIsTaken) {
       throw new UsernameUnavailableError(username);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this._trainerRepository.create({
+    const trainer = await this._trainerRepository.create({
       username,
       password: hashedPassword,
     });
+    await this._trainerRepository.save(trainer);
   };
 
   public addStepsToTrainer = async (username: string, steps: number) => {
@@ -54,17 +53,5 @@ export default class TrainerService implements ITrainerService {
     });
 
     return trainer;
-  };
-
-  private validateUsername = (username: string) => {
-    if (username.length === 0) {
-      throw new InvalidUsernameError(
-        "Username cannot be empty or whitespace only.",
-      );
-    } else if (/^[a-zA-Z0-9_]+$/.test(username)) {
-      throw new InvalidUsernameError(
-        "Username can only contain letters, numbers, and underscores (_).",
-      );
-    }
   };
 }

@@ -7,8 +7,16 @@ const authMiddlewareFactory = (container: Container) => {
   const trainerService: ITrainerService = container.get(trainerServiceId);
 
   return async (req: Request, res: Response, next: NextFunction) => {
-    const username = req.get("username");
-    const password = req.get("password");
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return next();
+    }
+
+    const auth = Buffer.from(authHeader.split(" ")[1], "base64")
+      .toString()
+      .split(":");
+    const username = auth[0];
+    const password = auth[1];
     if (!username || !password) {
       return next();
     }

@@ -33,6 +33,7 @@
   "scripts": {
     "lint": "npx eslint ./src",
     "start": "npx tsx src/index.ts",
+    "dev": "npx tsx watch ./src",
     "test": "npx jest ./tests",
     "typeorm": "typeorm-ts-node-commonjs",
     "prepare": "husky install"

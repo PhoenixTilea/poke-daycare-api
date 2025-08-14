@@ -16,6 +16,6 @@ export default class TrainerEntity {
   @OneToMany(() => Pokemon, pokemon => pokemon.trainer)
   registeredPokemon!: Relation<Pokemon[]>;
 
-  @Column("boolean")
+  @Column({ type: "boolean", default: false })
   hasEgg!: boolean;
 }
