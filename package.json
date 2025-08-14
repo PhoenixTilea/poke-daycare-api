@@ -31,9 +31,10 @@
     "typeorm": "0.3.25"
   },
   "scripts": {
-    "start": "npx tsx src/index.ts",
-    "typeorm": "typeorm-ts-node-commonjs",
+    "lint": "npx eslint ./src",
     "prepare": "husky",
-    "test": "npx jest ./tests"
+    "start": "npx tsx src/index.ts",
+    "test": "npx jest ./tests",
+    "typeorm": "typeorm-ts-node-commonjs"
   }
 }

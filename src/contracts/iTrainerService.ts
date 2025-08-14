@@ -6,4 +6,4 @@ export interface ITrainerService {
   addStepsToTrainer(username: string, steps: number): Promise<void>;
 }
 
-export const trainerServiceId = Symbol.for("TrainerServiceId");
+export const trainerServiceId: ServiceIdentifier<ITrainerService> = Symbol.for("TrainerServiceId");

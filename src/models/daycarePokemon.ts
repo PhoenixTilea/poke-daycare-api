@@ -1,5 +1,4 @@
 import type Pokemon from "./pokemon";
-import type PokemonMove from "./pokemonMove";
 
 export default class DaycarePokemon {
   constructor(

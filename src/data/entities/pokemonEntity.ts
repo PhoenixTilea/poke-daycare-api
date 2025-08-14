@@ -1,5 +1,5 @@
 import type {Relation} from "typeorm";
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, JoinTable} from "typeorm";
+import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import Trainer from "./trainerEntity";
 
 @Entity("Pokemon")

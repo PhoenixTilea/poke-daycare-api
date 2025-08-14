@@ -1,7 +1,7 @@
 import {Router} from "express";
 import type {Container} from "inversify";
 import StatusCodeError from "../errors/statusCodeError";
-import {IPokemonService, ITrainerService, pokemonServiceId, trainerServiceId} from "../contracts";
+import {IPokemonService, pokemonServiceId, trainerServiceId} from "../contracts";
 import authorizationMiddleware from "../middleware/authorizationMiddleware";
 import {isCredentials, validateCredentials} from "./dtos/credentials";
 import {isPokemonRegistration} from "./dtos/pokemonRegistration";
@@ -21,7 +21,7 @@ const trainerRouter = (container: Container) => {
       return next(new StatusCodeError(`Invalid credentials: ${validationError}.`, 400));
     }
 
-    const service: ITrainerService = container.get(trainerServiceId);
+    const service = container.get(trainerServiceId);
     try {
       await service.registerNewTrainer(creds.username, creds.password);
       res.status(201);
@@ -84,11 +84,15 @@ const trainerRouter = (container: Container) => {
   router.get("/pokemon", async (req, res, next) => {
     const {username} = (req as AuthenticatedRequest);
     const pokemonService: IPokemonService = container.get(pokemonServiceId);
-    const pokemon = await pokemonService.getTrainersPokemon(username);
-    return res.json(pokemon.map(p => ({
-      registrationId: p.registrationId,
-      name: p.nickname ?? p.species.name
-    })));
+    try {
+      const pokemon = await pokemonService.getTrainersPokemon(username);
+      return res.json(pokemon.map(p => ({
+        registrationId: p.registrationId,
+        name: p.nickname ?? p.species.name
+      })));
+    } catch (err) {
+      return next(err);
+    }
   });
 
   return router;
