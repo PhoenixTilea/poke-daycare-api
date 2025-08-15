@@ -82,6 +82,7 @@ To correctly register a Pokemon, you'll need to know a few details about its "sp
 #### GET /api/pokemon/{idOrName}
 
 **Requires Auth:** No
+
 **Request Parameters:**
 
 - idOrName (string | number) - This is either the Pokemon's name or its National Dex number. As mentioned in the Scope section, I've limited this to the first 251 Pokemon (Generations I and II).
@@ -112,7 +113,7 @@ All other interactions in this API require authentication, so you'll need to sig
 
 **Requires Auth:** No
 
-**Body:**
+**Request Body:**
 
 ```
 {
@@ -121,7 +122,9 @@ All other interactions in this API require authentication, so you'll need to sig
 }
 ```
 
-### Step #: Authenticate
+**Response:** A flavor message indicating success.
+
+### Step 3: Authenticate
 
 For the remaining endpoints, you'll need to pass the Authorization request header using a BASIC auth token. Set this up in your REST client before continuing.
 
@@ -133,7 +136,7 @@ A trainer (user) can register up to 2 Pokemon in the daycare at once. Use the fo
 
 **Requires Auth:** Yes
 
-##Request Body:\*\*
+**Request Body:**
 
 ```
 {
@@ -187,6 +190,27 @@ To get the names and registration IDs of your currently registered Pokemon, use 
 }]
 ```
 
+To get the details of a single Pokemon, you need its registrationId.
+
+#### GET /api/trainer/pokemon/{registrationId}
+
+**Requires Auth:** Yes
+
+**Request Parameters:**
+
+- registrationId (number) = The Pokemon's unique registration ID returned when it was registered.
+
+**Response:**
+
+```
+{
+  "registrationId": "number", // The Pokemon's unique ID in the system
+  "name": "string", // The pokemon's nickname or species name
+  "currentLevel": "number", // The Pokemon's current level, taking into account the steps the trainer has logged
+  "levelsGained": "number" // How many levels total the Pokemon has gained while registered
+}
+```
+
 ### Step 7: Finally, Pick Up A Pokemon
 
 To take your Pokemon out of the daycare and see its progress, call this endpoint.
@@ -199,7 +223,7 @@ To take your Pokemon out of the daycare and see its progress, call this endpoint
 
 - registrationId (number) = The Pokemon's unique ID in the system, returned when you registered it
 
-**Body:** None
+**Request Body:** None
 
 **Response:**
 
