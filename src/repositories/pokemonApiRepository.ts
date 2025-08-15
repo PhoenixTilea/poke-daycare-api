@@ -1,8 +1,7 @@
 import type { AxiosError, AxiosInstance } from "axios";
 import { inject, injectable, ServiceIdentifier } from "inversify";
 import { IPokemonApiRepository } from "../contracts/iPokemonApiRepository";
-import PokemonNotFoundError from "../errors/pokemonNotFoundError";
-import PokemonOutOfRangeError from "../errors/pokemonOutOfRangeError";
+import { PokemonNotFoundError, PokemonOutOfRangeError } from "../errors";
 import Pokemon from "../models/pokemon";
 import PokemonMove from "../models/pokemonMove";
 import type {

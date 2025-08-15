@@ -1,12 +1,9 @@
 import { Router } from "express";
 import type { Container } from "inversify";
-import {
-  IPokemonService,
-  pokemonServiceId,
-} from "../contracts/iPokemonService";
+import { pokemonServiceId } from "../contracts/iPokemonService";
 import PokemonOutOfRangeError from "../errors/pokemonOutOfRangeError";
 
-const pokemonRouter = (container: Container) => {
+const pokemonRouterFactory = (container: Container) => {
   const router = Router();
 
   router.get("/:pokeId(\\d{1,3}|[a-zA-Z]+)", async (req, res, next) => {
@@ -16,7 +13,7 @@ const pokemonRouter = (container: Container) => {
       return next(validatedOrError);
     }
 
-    const pokemonService: IPokemonService = container.get(pokemonServiceId);
+    const pokemonService = container.get(pokemonServiceId);
 
     try {
       const pokemon = await pokemonService.getPokemon(validatedOrError);
@@ -34,7 +31,7 @@ const pokemonRouter = (container: Container) => {
         })),
       });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   });
 
@@ -53,4 +50,4 @@ const validatePokemonId = (id: string): string | number | Error => {
   return id;
 };
 
-export default pokemonRouter;
+export default pokemonRouterFactory;

@@ -1,10 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import type { AuthenticatedRequest } from "../auth";
 import type { Container } from "inversify";
-import { ITrainerService, trainerServiceId } from "../contracts";
+import { trainerServiceId } from "../contracts";
 
 const authMiddlewareFactory = (container: Container) => {
-  const trainerService: ITrainerService = container.get(trainerServiceId);
+  const trainerService = container.get(trainerServiceId);
 
   return async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;

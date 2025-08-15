@@ -15,9 +15,12 @@ import TrainerEntity from "./data/entities/trainerEntity";
 import PokemonApiRepository, {
   axiosClientId,
 } from "./repositories/pokemonApiRepository";
-import CachingService, { cacheId } from "./services/cachingService";
-import PokemonService from "./services/pokemonService";
-import TrainerService from "./services/trainerService";
+import {
+  cacheId,
+  CachingService,
+  PokemonService,
+  TrainerService,
+} from "./services";
 
 const container = new Container();
 

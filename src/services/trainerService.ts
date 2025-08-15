@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import type { Repository } from "typeorm";
 import { ITrainerService, trainerRepositoryId } from "../contracts";
 import type TrainerEntity from "../data/entities/trainerEntity";
-import UsernameUnavailableError from "../errors/usernameUnavailableError";
+import { UsernameUnavailableError } from "../errors";
 
 @injectable()
 export default class TrainerService implements ITrainerService {

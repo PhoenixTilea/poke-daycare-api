@@ -5,7 +5,7 @@ import TrainerEntity from "./entities/trainerEntity";
 export const AppDataSource = new DataSource({
   type: "sqlite",
   database: "database.sqlite",
-  synchronize: true,
+  synchronize: false,
   logging: false,
   entities: [PokemonEntity, TrainerEntity],
   migrations: [],

@@ -1,17 +1,13 @@
 import { Router } from "express";
 import type { Container } from "inversify";
 import type { AuthenticatedRequest } from "../auth";
-import {
-  IPokemonService,
-  pokemonServiceId,
-  trainerServiceId,
-} from "../contracts";
+import { pokemonServiceId, trainerServiceId } from "../contracts";
 import StatusCodeError from "../errors/statusCodeError";
 import authorizationMiddleware from "../middleware/authorizationMiddleware";
 import { isCredentials, validateCredentials } from "./dtos/credentials";
 import { isPokemonRegistration } from "./dtos/pokemonRegistration";
 
-const trainerRouter = (container: Container) => {
+const trainerRouterFactory = (container: Container) => {
   const router = Router();
 
   router.post("/register", async (req, res, next) => {
@@ -56,7 +52,7 @@ const trainerRouter = (container: Container) => {
     }
 
     const { username } = req as AuthenticatedRequest;
-    const pokemonService: IPokemonService = container.get(pokemonServiceId);
+    const pokemonService = container.get(pokemonServiceId);
     const registeredPokemon = await pokemonService.getTrainersPokemon(username);
     if (registeredPokemon.length >= 2) {
       return next(
@@ -93,7 +89,7 @@ const trainerRouter = (container: Container) => {
       return next(new StatusCodeError("Invalid pokemon registration ID.", 400));
     }
 
-    const pokemonService: IPokemonService = container.get(pokemonServiceId);
+    const pokemonService = container.get(pokemonServiceId);
     const pokemon = await pokemonService.getTrainersPokemonById(
       username,
       registrationId,
@@ -121,7 +117,7 @@ const trainerRouter = (container: Container) => {
 
   router.get("/pokemon", async (req, res, next) => {
     const { username } = req as AuthenticatedRequest;
-    const pokemonService: IPokemonService = container.get(pokemonServiceId);
+    const pokemonService = container.get(pokemonServiceId);
     try {
       const pokemon = await pokemonService.getTrainersPokemon(username);
       return res.json(
@@ -185,4 +181,4 @@ const trainerRouter = (container: Container) => {
   return router;
 };
 
-export default trainerRouter;
+export default trainerRouterFactory;

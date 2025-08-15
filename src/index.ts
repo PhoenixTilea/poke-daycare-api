@@ -5,8 +5,8 @@ import express from "express";
 import container, { bindDbRepositories } from "./container";
 import authMiddleware from "./middleware/authenticationMiddleware";
 import errorMiddleware from "./middleware/errorMiddleware";
-import pokemonRouter from "./routers/pokemonRouter";
-import trainerRouter from "./routers/trainerRouter";
+import pokemonRouterFactory from "./routers/pokemonRouter";
+import trainerRouterFactory from "./routers/trainerRouter";
 
 AppDataSource.initialize()
   .then(async () => {
@@ -18,8 +18,8 @@ AppDataSource.initialize()
     app.use(authMiddleware(container));
 
     // Add routes
-    app.use("/api/pokemon", pokemonRouter(container));
-    app.use("/api/trainer", trainerRouter(container));
+    app.use("/api/pokemon", pokemonRouterFactory(container));
+    app.use("/api/trainer", trainerRouterFactory(container));
 
     // Catch errors
     app.use(errorMiddleware);

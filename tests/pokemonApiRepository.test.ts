@@ -1,7 +1,6 @@
 import axios, { AxiosError } from "axios";
+import { PokemonNotFoundError, PokemonOutOfRangeError } from "../src/errors";
 import PokemonApiRepository from "../src/repositories/pokemonApiRepository";
-import PokemonNotFoundError from "../src/errors/pokemonNotFoundError";
-import PokemonOutOfRangeError from "../src/errors/pokemonOutOfRangeError";
 import * as fakes from "./testData/testPokemonApiData";
 
 jest.mock("axios");
