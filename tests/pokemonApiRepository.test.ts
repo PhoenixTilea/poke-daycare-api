@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import PokemonApiRepository from "../src/repositories/pokemonApiRepository";
 import PokemonNotFoundError from "../src/errors/pokemonNotFoundError";
 import PokemonOutOfRangeError from "../src/errors/pokemonOutOfRangeError";
@@ -18,9 +18,9 @@ describe("PokemonApiRepository", () => {
     it("Should build a basic Pokemon.", async () => {
       fakeAxios.get.mockImplementation((path: string) => {
         if (path.includes("species")) {
-          return Promise.resolve({data: fakes.blobadoo});
+          return Promise.resolve({ data: fakes.blobadoo });
         } else {
-          return Promise.resolve({data: fakes.blobadooVariety});
+          return Promise.resolve({ data: fakes.blobadooVariety });
         }
       });
 
@@ -35,58 +35,66 @@ describe("PokemonApiRepository", () => {
       expect(result.possibleMoves).toHaveLength(1);
       expect(result.possibleMoves[0].levelLearned).toBe(40);
       expect(result.possibleMoves[0].name).toBe("Consume");
-      expect(result.possibleMoves[0].order).toBe(4);
     });
     it.each([
       [fakes.femaleOnlyBlobadoo, true, false],
       [fakes.maleOnlyBlobadoo, false, true],
-      [fakes.genderlessBlobadoo, false, false]
-    ])("Should set gender properties according to species.", async (blobadoo, canBeFemale, canBeMale) => {
-      fakeAxios.get.mockImplementation((path: string) => {
-        if (path.includes("species")) {
-          return Promise.resolve({data: blobadoo});
-        }
-        return Promise.resolve({data: fakes.blobadooVariety});
-      });
+      [fakes.genderlessBlobadoo, false, false],
+    ])(
+      "Should set gender properties according to species.",
+      async (blobadoo, canBeFemale, canBeMale) => {
+        fakeAxios.get.mockImplementation((path: string) => {
+          if (path.includes("species")) {
+            return Promise.resolve({ data: blobadoo });
+          }
+          return Promise.resolve({ data: fakes.blobadooVariety });
+        });
 
-      const result = await repo.getPokemon(1);
-      expect(result.canBeFemale).toBe(canBeFemale);
-      expect(result.canBeMale).toBe(canBeMale);
-    });
+        const result = await repo.getPokemon(1);
+        expect(result.canBeFemale).toBe(canBeFemale);
+        expect(result.canBeMale).toBe(canBeMale);
+      },
+    );
     it.each([
       fakes.babyBlobadoo,
       fakes.legendaryBlobadoo,
       fakes.mythicalBlobadoo,
-      fakes.noEggsBlobadoo
-    ])("Should set baby, legendary, mythical, and 'no-egg' Pokemon as unable to breed.", async (blobadoo) => {
-      fakeAxios.get.mockImplementation((path: string) => {
-        if (path.includes("species")) {
-          return Promise.resolve({data: blobadoo});
-        }
-        return Promise.resolve({data: fakes.blobadooVariety});
-      });
+      fakes.noEggsBlobadoo,
+    ])(
+      "Should set baby, legendary, mythical, and 'no-egg' Pokemon as unable to breed.",
+      async blobadoo => {
+        fakeAxios.get.mockImplementation((path: string) => {
+          if (path.includes("species")) {
+            return Promise.resolve({ data: blobadoo });
+          }
+          return Promise.resolve({ data: fakes.blobadooVariety });
+        });
 
-      const result = await repo.getPokemon(1);
-      expect(result.canBreed).toBe(false);
-    });
+        const result = await repo.getPokemon(1);
+        expect(result.canBreed).toBe(false);
+      },
+    );
 
     // Errors
     it("Should throw PokemonNotFoundError if species is not found.", async () => {
       fakeAxios.get.mockImplementation(() => {
-        throw new Error("Fake error");
+        const err = new AxiosError("Fake error");
+        err.status = 404;
+        throw err;
       });
 
-      return expect(() => repo.getPokemon(123)).rejects.toThrow(new PokemonNotFoundError(123));
+      return expect(() => repo.getPokemon(123)).rejects.toThrow(
+        new PokemonNotFoundError(123),
+      );
     });
     it("Should throw PokemonOutOfRangeError when returned Pokemon ID is greater than 251.", async () => {
-      fakeAxios.get.mockImplementation(() => Promise.resolve({
-        data: {
-          id: 413,
-          name: "wromadam"
-        }
-      }));
+      fakeAxios.get.mockImplementation(() =>
+        Promise.resolve({ data: { id: 413, name: "wromadam" } }),
+      );
 
-      return expect(() => repo.getPokemon("wormadam")).rejects.toThrow(new PokemonOutOfRangeError(413));
+      return expect(() => repo.getPokemon("wormadam")).rejects.toThrow(
+        new PokemonOutOfRangeError(413),
+      );
     });
     it("Should throw error from Axios if a Pokemon variety is not found.", async () => {
       fakeAxios.get.mockImplementation((path: string) => {
@@ -95,11 +103,10 @@ describe("PokemonApiRepository", () => {
             data: {
               id: 25,
               name: "Pikachu",
-              varieties: [{
-                is_default: true,
-                pokemon: {name: "Fake-Pikachu"}
-              }]
-            }
+              varieties: [
+                { is_default: true, pokemon: { name: "Fake-Pikachu" } },
+              ],
+            },
           });
         } else {
           throw new Error("Axios error");

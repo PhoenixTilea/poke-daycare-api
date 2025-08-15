@@ -203,7 +203,7 @@ export default class PokemonService implements IPokemonService {
     hasAnEgg: boolean,
   ): string => {
     const levelsGained = pokemon.level - pokemon.levelAtRegistration;
-    let message = `${pokemon.nickname ?? pokemon.species.name} looks happy to see you `;
+    let message = `${pokemon.name} looks happy to see you `;
     if (levelsGained > 0) {
       message += `and has grown by ${levelsGained} level${levelsGained > 1 ? "s" : ""}! `;
       if (hasLearnedMoves) {

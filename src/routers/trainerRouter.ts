@@ -79,7 +79,7 @@ const trainerRouter = (container: Container) => {
       res.status(201);
       res.json({
         registrationId: newPokemon.registrationId,
-        message: `Great! We'll take good care of ${newPokemon.nickname ?? newPokemon.species.name}!`,
+        message: `Great! We'll take good care of ${newPokemon.name}!`,
       });
     } catch (err) {
       return next(err);
@@ -113,7 +113,7 @@ const trainerRouter = (container: Container) => {
     );
     return res.json({
       registrationId,
-      name: pokemon.nickname ?? pokemon.species.name,
+      name: pokemon.name,
       currentLevel,
       levelsGained: currentLevel - pokemon.levelAtRegistration,
     });
@@ -125,10 +125,7 @@ const trainerRouter = (container: Container) => {
     try {
       const pokemon = await pokemonService.getTrainersPokemon(username);
       return res.json(
-        pokemon.map(p => ({
-          registrationId: p.registrationId,
-          name: p.nickname ?? p.species.name,
-        })),
+        pokemon.map(p => ({ registrationId: p.registrationId, name: p.name })),
       );
     } catch (err) {
       return next(err);
@@ -173,7 +170,7 @@ const trainerRouter = (container: Container) => {
         return res.json({
           message,
           pokemon: {
-            name: pokemon.nickname ?? pokemon.species.name,
+            name: pokemon.name,
             species: pokemon.species.name,
             level: pokemon.level,
             moves: pokemon.moves,

@@ -1,4 +1,4 @@
-import type { AxiosInstance } from "axios";
+import type { AxiosError, AxiosInstance } from "axios";
 import { inject, injectable, ServiceIdentifier } from "inversify";
 import { IPokemonApiRepository } from "../contracts/iPokemonApiRepository";
 import PokemonNotFoundError from "../errors/pokemonNotFoundError";
@@ -28,8 +28,10 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
     try {
       species = await this.getPokemonSpecies(pokeId);
     } catch (err) {
-      console.error(err);
-      throw new PokemonNotFoundError(pokeId);
+      if ((err as AxiosError).status === 404) {
+        throw new PokemonNotFoundError(pokeId);
+      }
+      throw err;
     }
 
     // Accounts for a name being passed in, since we don't know its number until we fetch it.
@@ -116,7 +118,6 @@ export default class PokemonApiRepository implements IPokemonApiRepository {
       moves[m.move.name] = new PokemonMove(
         m.move.name,
         version.level_learned_at,
-        version.order,
       );
     }
 

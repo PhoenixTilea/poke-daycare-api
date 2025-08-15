@@ -23,6 +23,5 @@ export type GrowthRate = { levels: { experience: number }[] };
 
 type PokemonMoveVersion = {
   level_learned_at: number;
-  order: number | null;
   version_group: NamedApiResource;
 };

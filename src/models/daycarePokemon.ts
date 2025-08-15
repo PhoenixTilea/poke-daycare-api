@@ -6,17 +6,13 @@ export default class DaycarePokemon {
   constructor(
     public readonly registrationId: number,
     public readonly species: Pokemon,
-    private _experience: number,
+    public readonly experience: number,
     public readonly levelAtRegistration: number,
     private _moves: string[] = [],
     public readonly nickname: string | null = null,
     public readonly isFemale: boolean = false,
   ) {
     this._level = levelAtRegistration;
-  }
-
-  get experience() {
-    return this._experience;
   }
 
   get isMale() {
@@ -29,6 +25,10 @@ export default class DaycarePokemon {
 
   get moves() {
     return [...this._moves];
+  }
+
+  get name() {
+    return this.nickname ?? this.species.name;
   }
 
   public canBreedWith = (other: DaycarePokemon): boolean => {
